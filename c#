@@ -1,0 +1,107 @@
+using System;
+using System.Collections.Generic;
+using System.Globalization;
+
+public class Empleado
+{
+    private string nombre;
+    private int edad;
+    protected decimal salarioBase;
+
+    public Empleado(string nombre, int edad, decimal salarioBase)
+    {
+        Nombre = nombre;   
+        Edad = edad;       
+        this.salarioBase = salarioBase;
+    }
+
+    public string Nombre
+    {
+        get { return nombre; }
+        set
+        {
+            if (string.IsNullOrWhiteSpace(value))
+                throw new ArgumentException("El nombre no debe estar vacío.");
+            nombre = value;
+        }
+    }
+
+    public int Edad
+    {
+        get { return edad; }
+        set
+        {
+            if (value < 18 || value > 65)
+                throw new ArgumentException("¡Edad no válida para trabajar!");
+            edad = value;
+        }
+    }
+
+    public virtual decimal CalcularSalario()
+    {
+        return salarioBase;
+    }
+
+    public virtual string MostrarInf()
+    {
+        return $"Nombre: {Nombre}, Edad: {Edad}, Salario total: {CalcularSalario().ToString("C0", new CultureInfo("es-CO"))}";
+    }
+}
+
+public class Dev : Empleado
+{
+    private const decimal BonoPorProyecto = 500000m;
+    private int proyectosCompletados;
+
+    public Dev(string nombre, int edad, decimal salarioBase, int proyectosCompletados)
+        : base(nombre, edad, salarioBase)
+    {
+        this.proyectosCompletados = proyectosCompletados;
+    }
+
+    public override decimal CalcularSalario()
+    {
+        return salarioBase + (BonoPorProyecto * proyectosCompletados);
+    }
+
+    public override string MostrarInf()
+    {
+        return base.MostrarInf() + $" | Rol: Dev | Proyectos: {proyectosCompletados}";
+    }
+}
+
+public class Gerente : Empleado
+{
+    private const decimal BonoGestion = 800000m;
+
+    public Gerente(string nombre, int edad, decimal salarioBase)
+        : base(nombre, edad, salarioBase) { }
+
+    public override decimal CalcularSalario()
+    {
+        return salarioBase + BonoGestion;
+    }
+
+    public override string MostrarInf()
+    {
+        return base.MostrarInf() + " | Rol: Gerente";
+    }
+}
+
+public class Program
+{
+    public static void Main(string[] args)
+    {
+        List<Empleado> empleados = new List<Empleado>
+        {
+            new Gerente("Dayanna Peña", 19, 4000000m),
+            new Dev("Carlos Pérez", 28, 3000000m, 4),
+            new Dev("Laura Gómez", 25, 2800000m, 6)
+        };
+
+        foreach (Empleado e in empleados)
+        {
+            Console.WriteLine(e.MostrarInf());
+        }
+    }
+}
